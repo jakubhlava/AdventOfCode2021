@@ -21,13 +21,13 @@ already_won = set()
 for num in called_numbers:
     board_list = [b for b in boards if b["id"] not in already_won]
     for b in board_list:
-        b["board"][b["board"] == num] = 0  # všechny políčka s číslem nahradíme nulou
-        if 0 in b["board"].sum(axis=0) or 0 in b["board"].sum(axis=1):  # nulový sloupec/řádek == výhra
+        b["board"][b["board"] == num] = -1  # všechny políčka s číslem nahradíme nulou
+        if True in np.all(b["board"] == -1, axis=0) or True in np.all(b["board"] == -1, axis=1):  # nulový sloupec/řádek == výhra
             if winner is None:
-                winner = num*b["board"].sum()
+                winner = num*np.clip(b["board"], 0, None).sum()
             already_won.add(b["id"])
     if len(board_list) == 1:  # zbývá poslední deska, "proherní"
-        loser = num*board_list[0]["board"].sum()
+        loser = num*np.clip(board_list[0]["board"], 0, None).sum()
 
 print(f"Part 1: {winner}")
 print(f"Part 2: {loser}")
