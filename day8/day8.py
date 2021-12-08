@@ -8,12 +8,9 @@ print(f"Part 1: {easynums}")
 
 p2sum = 0
 for case in cases:
-    observed = case[0].split()
-    mapping = {}
-    reverse_map = {}
-    segment = {}
+    mapping, reverse_map, segment = {}, {}, {}
     sorted_by_segments = {x: [] for x in range(2, 8)}
-    for num in observed:
+    for num in case[0].split():
         sorted_by_segments[len(num)].append(set(num))
     mapping[''.join(sorted(sorted_by_segments[2][0]))] = "1"
     reverse_map[1] = set(sorted_by_segments[2][0])
