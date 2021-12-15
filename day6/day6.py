@@ -1,3 +1,5 @@
+import time
+t = time.time()
 with open("input.txt", "r") as f:
     lanternfish = [int(x) for x in f.read().strip().split(",")]
 
@@ -10,3 +12,4 @@ for i in range(256):
     if i == 79:
         print("Part 1:", sum([counts[x] for x in range(0, 9)]))
 print("Part 2:", sum([counts[x] for x in range(0, )]))
+print(f"Time elapsed: {time.time()-t} s")
