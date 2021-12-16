@@ -2,6 +2,7 @@ import numpy as np
 import time
 
 def neighbors(x, y, matrix):
+    """Čtyřokolí daného bodu v matici"""
     n = []
     if x > 0:
         n.append((x-1, y))
@@ -14,12 +15,15 @@ def neighbors(x, y, matrix):
     return n
 
 def linear(point, matrix):
+    """Linearizuje tuple s bodem v matici kvůli použití v hashovaných typech set adict"""
     return point[0] * matrix.shape[1] + point[1]
 
 def pt(linear, matrix):
+    """Reverzní funkce k linear"""
     return (linear // matrix.shape[1], linear % matrix.shape[1])
 
 def extract_min(unvisited, dijkstra):
+    """Najde nejlepší (s nejmenší cenou přechodu od známých) vrchol pro pokračování hledání cesty"""
     min = np.iinfo(np.int32).max
     mp = None
     for u in unvisited:
@@ -30,28 +34,24 @@ def extract_min(unvisited, dijkstra):
     return mp
 
 def add_with_wrap(x):
+    """Implementace wrapu podle zadání, modulo nestačí"""
     if x == 9:
         return 1
     else:
         return x + 1
 
 def compute_dijkstra(matrix, target):
+    """Modifikovaná implementace dijkstrova algoritmu s vyřazením netknutých bodů z hledání nejlepšího vrcholu extract_min"""
     dijkstra = np.ndarray(matrix.shape, dtype=np.int32)
-    dijkstra[:] = np.iinfo(np.int32).max
+    dijkstra[:] = np.iinfo(np.int32).max    # místo nekonečna maximánlí hodnota int32
 
-    unvis_touched = {0}
-    previous = {}
-    dijkstra[(0, 0)] = 0
-    #unvisited = {tuple(x) for x in np.argwhere(dijkstra == np.iinfo(np.int32).max)}
-    i = 0
-    t = time.time()
+    unvis_touched = {0}  # nenavštívené modifikované
+    previous = {}        # slovník s předky jednotlivých bodů
+    dijkstra[(0, 0)] = 0  # první pole má nulovou cenu přechodu - začínáme zde
     while unvis_touched:
-        i += 1
-        if i%1000 == 0:
-            print(i)
-        best = extract_min(unvis_touched, dijkstra)
-        unvis_touched.remove(linear(best, matrix))
-        for n in neighbors(*best, matrix):
+        best = extract_min(unvis_touched, dijkstra)     # hledání nejlepšího vrcholu
+        unvis_touched.remove(linear(best, matrix))      # odstranění z množiny nenavštívených
+        for n in neighbors(*best, matrix):              # přehodnocení sousedů
             if dijkstra[best] + matrix[n] < dijkstra[n]:
                 dijkstra[n] = dijkstra[best] + matrix[n]
                 previous[linear(n, matrix)] = best
@@ -60,7 +60,7 @@ def compute_dijkstra(matrix, target):
             break
     return dijkstra
 
-addrisk = np.vectorize(add_with_wrap)
+addrisk = np.vectorize(add_with_wrap)  # vektorizace funkce pro zjednodušení práce s maticí
 
 with open("input.txt", "r") as f:
     risks = [[int(x) for x in l.strip()] for l in f.readlines()]
@@ -72,6 +72,7 @@ target = (matrix.shape[0]-1, matrix.shape[1]-1)
 
 print("Part 1:", compute_dijkstra(matrix, target)[target])
 
+# rozšíření matice 5x do každé strany se zvýšením risků podle part2 zadání
 appendmatrix = addrisk(matrix)
 for _ in range(4):
     matrix = np.append(matrix, appendmatrix, 0)
@@ -84,6 +85,7 @@ for _ in range(4):
 
 target = (matrix.shape[0]-1, matrix.shape[1]-1)
 
+print("Computing part 2... please wait (may take minute or two...)")
 print("Part 2:", compute_dijkstra(matrix, target)[target])
 
 
