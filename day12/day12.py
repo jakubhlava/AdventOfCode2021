@@ -25,20 +25,23 @@ class Cave:
             self.children.add(cave.name)
 
 
-def make_step(next: Cave, path: list, small_visited: set):
+def make_step(next: Cave, path: list, small_visited: set, twice=None):
     global caves
-    paths = []
+    paths = set()
     path.append(next.name)
     if next.end:
-        paths.append(path)
+        paths.add(tuple(path))
         return paths
     if not next.children:
         return []
     if next.size == "small":
-        small_visited.add(next.name)
+        if next.name == twice:
+            twice = None
+        else:
+            small_visited.add(next.name)
     for child in next.children:
         if child not in small_visited:
-            paths.extend(make_step(caves[child], copy.deepcopy(path), copy.deepcopy(small_visited)))
+            paths = paths.union(make_step(caves[child], copy.deepcopy(path), copy.deepcopy(small_visited), twice))
     return paths
 
 
@@ -54,6 +57,12 @@ for w in ways:
     caves[w[1]].add_child(caves[w[0]])
 
 paths = make_step(caves["start"], [], set())
-print(len(paths))
+print("Part 1", len(paths))
 
+paths = set()
+small = [c.name for c in caves.values() if c.size == "small"]
+for s in small:
+    paths = paths.union(make_step(caves["start"], [], set(), s))
+
+print("Part 2", len(paths))
 
